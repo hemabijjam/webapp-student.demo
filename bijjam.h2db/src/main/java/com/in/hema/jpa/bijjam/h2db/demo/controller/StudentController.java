@@ -1,10 +1,14 @@
 package com.in.hema.jpa.bijjam.h2db.demo.controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.in.hema.jpa.bijjam.h2db.demo.entity.Student;
@@ -29,16 +33,27 @@ public class StudentController {
 		return studentResponse;
 	}
 	@PutMapping("{id}")
-	public StudentResponse update(@PathVariable Integer Id,@RequestBody StudentRequest studentRequest) {
+	public StudentResponse update(@PathVariable Integer id,@RequestBody StudentRequest studentRequest) {
 		final Student student=toStudent(studentRequest);
-		student.setId(Id);
+		student.setId(id);
 		Student savedStudent = studentRepository.save(student);
 		final StudentResponse studentResponse=toStudentResponse(savedStudent);
 		return studentResponse;
 	}
+	@GetMapping("{id}")
+		public StudentResponse findById(@PathVariable Integer id) {
+		final Student student=studentRepository.findById(id).get();
+		final StudentResponse studentResponse=toStudentResponse(student);
+		return studentResponse;		
+	}
+	@DeleteMapping("{id}")
+	@ResponseStatus(value=HttpStatus.NO_CONTENT)
+	public void delete(@PathVariable Integer id) {
+			studentRepository.deleteById(id);
+	}
 	private static final StudentResponse toStudentResponse(Student student) {
 		final StudentResponse studentResponse=new StudentResponse();
-		studentResponse.setId(studentResponse.getId());
+		studentResponse.setId(student.getId());
 		studentResponse.setAge(student.getAge());
 		studentResponse.setName(student.getName());
 		studentResponse.setYear(student.getYear());
@@ -47,11 +62,10 @@ public class StudentController {
 	}
 	private static final Student toStudent(StudentRequest studentRequest) {
 		final Student student=new Student();
-		student.setId(student.getId());
-		student.setAge(student.getAge());
-		student.setName(student.getName());
-		student.setYear(student.getYear());
-		student.setBranch(student.getBranch());
+		student.setAge(studentRequest.getAge());
+		student.setName(studentRequest.getName());
+		student.setYear(studentRequest.getYear());
+		student.setBranch(studentRequest.getBranch());
 		return student;
 	}
 }
